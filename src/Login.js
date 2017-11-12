@@ -4,7 +4,7 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import ActionAndroid from 'material-ui/svg-icons/action/android';
 
-import { graphql } from 'react-apollo'
+import { graphql, compose } from 'react-apollo'
 import gql from 'graphql-tag'
 
 class Login extends Component {
@@ -26,6 +26,7 @@ class Login extends Component {
             localStorage.setItem('graphcoolToken', response.data.authenticateUser.token)
             // this.props.history.push('/')
             console.log(response.data)
+            window.location.reload()
         } catch (e) {
             console.error('An error occured: ', e)
             // this.props.history.push('/')
@@ -42,6 +43,21 @@ class Login extends Component {
                 marginRight: 12,
                 width: 240
             }
+        }
+
+        if (this.props.loggedInUserQuery.loading) {
+
+            return (
+                <div className='w-100 pa4 flex justify-center'>
+                    <div>Loading</div>
+                </div>
+            )
+        }
+
+        // redirect if user is logged in
+        if (this.props.loggedInUserQuery.id) {
+            console.warn('already logged in')
+            window.location.reload()
         }
 
         return (
@@ -86,5 +102,17 @@ const AUTHENTICATE_EMAIL_USER = gql`
     }
   }
 `
-
-export default graphql(AUTHENTICATE_EMAIL_USER, { name: 'authenticateUserMutation' })(Login)
+const LOGGED_IN_USER_QUERY = gql`
+  query LoggedInUserQuery {
+    loggedInUser {
+      id
+    }
+  }
+`
+export default compose(
+    graphql(AUTHENTICATE_EMAIL_USER, { name: 'authenticateUserMutation' }),
+    graphql(LOGGED_IN_USER_QUERY, {
+        name: 'loggedInUserQuery',
+        options: { fetchPolicy: 'network-only' }
+    })
+)(Login)

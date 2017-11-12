@@ -31,7 +31,7 @@ class Signup extends Component {
             console.error('An error occured: ', e)
             // this.props.history.push('/')
         }
-
+        window.location.reload()
     }
 
     render() {
