@@ -1,9 +1,14 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import App from './App'
+import Login from './Login'
+import Signup from './Signup'
+import NotFound from './NotFound'
 
-import { ApolloProvider } from 'react-apollo';
-import { ApolloClient } from 'apollo-client';
+import { ApolloProvider } from 'react-apollo'
+import { ApolloClient } from 'apollo-client'
 import { createHttpLink } from 'apollo-link-http'
 import { ApolloLink } from 'apollo-link'
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -31,7 +36,16 @@ const client = new ApolloClient({
 
 ReactDOM.render((
     <ApolloProvider client={client}>
-        <App />
+        <MuiThemeProvider>
+        <BrowserRouter>
+            <Switch>    
+                <Route exact path="/" component={App} />
+                <Route exact path="/login" component={Login} />
+                <Route exact path="/signup" component={Signup} />
+                <Route component={NotFound} />
+            </Switch>    
+            </BrowserRouter>    
+        </MuiThemeProvider>    
     </ApolloProvider>    
 ),
     document.getElementById('root')
