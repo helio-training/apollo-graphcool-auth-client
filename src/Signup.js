@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Card, CardHeader } from 'material-ui/Card';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import { withRouter } from 'react-router-dom'
 
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
@@ -26,12 +27,11 @@ class Signup extends Component {
             localStorage.setItem('graphcoolToken', response.data.signupUser.token)
             console.log(response.data)
             document.querySelector("form").reset()
-            // this.props.history.push('/')
+            this.props.history.push('/')
         } catch (e) {
             console.error('An error occured: ', e)
-            // this.props.history.push('/')
+            this.props.history.push('/')
         }
-        window.location.reload()
     }
 
     render() {
@@ -75,5 +75,5 @@ const SIGNUP_EMAIL_USER = gql`
   }
 `
 
-export default graphql(SIGNUP_EMAIL_USER, { name: 'signupUserMutation' })(Signup)
+export default graphql(SIGNUP_EMAIL_USER, { name: 'signupUserMutation' })(withRouter(Signup))
 

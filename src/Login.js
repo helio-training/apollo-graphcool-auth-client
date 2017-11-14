@@ -1,8 +1,12 @@
 import React, { Component } from 'react'
-import { Card, CardHeader } from 'material-ui/Card';
-import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
-import ActionAndroid from 'material-ui/svg-icons/action/android';
+import { Card, CardHeader } from 'material-ui/Card'
+import Dialog from 'material-ui/Dialog';
+import TextField from 'material-ui/TextField'
+import RaisedButton from 'material-ui/RaisedButton'
+import FlatButton from 'material-ui/FlatButton'
+import ActionAndroid from 'material-ui/svg-icons/action/android'
+import ActionFingerPrint from 'material-ui/svg-icons/action/fingerprint'
+import { withRouter } from 'react-router-dom'
 
 import { graphql, compose } from 'react-apollo'
 import gql from 'graphql-tag'
@@ -13,9 +17,24 @@ class Login extends Component {
 
         this.state = {
             email: '',
-            password: ''
+            password: '',
+            open: false
         }
     }
+
+    _handleOpen = () => {
+        this.setState({ open: true });
+    };
+
+    _handleTryAgain = () => {
+        document.querySelector("form").reset()
+        this.setState({ open: false });
+    };
+
+    _handleSignUp = () => {
+        this.setState({ open: false });
+        this._signup()
+    };
 
     _loginUser = async (event) => {
         event.preventDefault()
@@ -24,15 +43,16 @@ class Login extends Component {
         try {
             const response = await this.props.authenticateUserMutation({ variables: { email, password } })
             localStorage.setItem('graphcoolToken', response.data.authenticateUser.token)
-            // this.props.history.push('/')
+            this.props.history.push('/')
             console.log(response.data)
-            window.location.reload()
         } catch (e) {
             console.error('An error occured: ', e)
-            // this.props.history.push('/')
+            this._handleOpen()
         }
 
     }
+
+    _signup = () => this.props.history.push('/signup')
 
     render() {
 
@@ -44,6 +64,20 @@ class Login extends Component {
                 width: 240
             }
         }
+
+        const actions = [
+            <FlatButton
+                label="Try Again"
+                primary={true}
+                onClick={this._handleTryAgain}
+            />,
+            <FlatButton
+                label="Sign Up"
+                primary={true}
+                keyboardFocused={true}
+                onClick={this._handleSignUp}
+            />,
+        ];
 
         if (this.props.loggedInUserQuery.loading) {
 
@@ -88,8 +122,24 @@ class Login extends Component {
                         label="Sign in with Github"
                         icon={<ActionAndroid />}
                     />
+                    <RaisedButton
+                        style={styles.button}
+                        label="No login?  Sign up!"
+                        icon={<ActionFingerPrint />}
+                        onClick={this._signup}
+                    />
                 </form>
+                <Dialog
+                    title="Login Failed"
+                    actions={actions}
+                    modal={false}
+                    open={this.state.open}
+                    onRequestClose={this.handleClose}
+                >
+                    Your login was not recognized.  Please try another login or sign up as a new user.
+        </Dialog>
             </Card>
+            
         )
     }
 
@@ -115,4 +165,4 @@ export default compose(
         name: 'loggedInUserQuery',
         options: { fetchPolicy: 'network-only' }
     })
-)(Login)
+)(withRouter(Login))
